@@ -1,0 +1,43 @@
+<script src="WebRtcShitBlt.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<script>
+
+    function init(){
+        let sb = new WebRtcSB();
+        let imgCopy = new ImageCopy();
+        let imgAdd = new TextAdd('Freddy', 10, 10, {color: 'white', size: '25px'});
+
+        // possible construct params
+        //      textValue = '',
+        //      textPosX = 10,
+        //      textPosY = 10,
+        //      textOptions = {
+        //         fontType:  null,
+        //         color: null,
+        //         size: null,
+        //         bold: false,
+        //         italic: false
+        //     }
+
+        let imgAdd2 = new ImageAdd('sb.png', 580, 10, 50, 50);
+        let imgAdd3 = new ImageAdd('sb.png', 10, 420, 50, 50);
+        let imgAdd4 = new ImageAdd('sb.png', 580, 420, 50, 50);
+        sb.setManipulators([imgCopy, imgAdd, imgAdd2, imgAdd3, imgAdd4]);
+
+        sb.sbStartCapture({video: true, audio: false})
+            .then((stream)=>{
+            document.getElementById('myVideo').srcObject = stream;
+        })
+    }
+</script>
+<head>
+</head>
+<body onload="init();">
+<h1>WebRtcShitBlt sample app</h1>
+<div>
+    <video id="myVideo" autoplay playsinline style="width: 640px;height: 480px;border-style: solid"></video>
+</div>
+</body>
+</html>

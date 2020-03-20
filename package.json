@@ -1,0 +1,29 @@
+{
+  "name": "webrtcshitblt",
+  "version": "1.0.2",
+  "description": "client side WebRTC lib to add an image / watermark on the MediaSource Edit",
+  "main": "WebRtcShitBlt.js",
+  "scripts": {
+    "test": "https://asafrob.github.io/WebRtcShitBlt/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asafrob/WebRtcShitBlt.git"
+  },
+  "keywords": [
+    "webrtc",
+    "video",
+    "watermark",
+    "logo",
+    "image",
+    "client-side",
+    "javascript",
+    "es6"
+  ],
+  "author": "asafrob",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/asafrob/WebRtcShitBlt/issues"
+  },
+  "homepage": "https://github.com/asafrob/WebRtcShitBlt#readme"
+}
