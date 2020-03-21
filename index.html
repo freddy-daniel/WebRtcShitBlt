@@ -1,13 +1,19 @@
-<script src="WebRtcShitBlt.js"></script>
-
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <script src="WebRtcShitBlt.js"></script>
+</head>
+<body onload="init();">
+<h1>WebRtcShitBlt sample app</h1>
+<div>
+    <video id="myVideo" muted="true" autoplay playsinline style="width: 640px;height: 480px;border-style: solid"></video>
+</div>
 <script>
 
     function init(){
         let sb = new WebRtcSB();
         let imgCopy = new ImageCopy();
-        let imgAdd = new TextAdd('Freddy', 10, 10, {color: 'white', size: '25px'});
+        let imgAdd = new TextAdd('Freddy Daniel', 15, 25, {color: 'white', size: '20px'});
 
         // possible construct params
         //      textValue = '',
@@ -21,23 +27,22 @@
         //         italic: false
         //     }
 
-        let imgAdd2 = new ImageAdd('sb.png', 580, 10, 50, 50);
-        let imgAdd3 = new ImageAdd('sb.png', 10, 420, 50, 50);
-        let imgAdd4 = new ImageAdd('sb.png', 580, 420, 50, 50);
-        sb.setManipulators([imgCopy, imgAdd, imgAdd2, imgAdd3, imgAdd4]);
+        // let imgAdd2 = new TextAdd('Daniel', 580, 10, {color: 'green', size: '35px'});
 
-        sb.sbStartCapture({video: true, audio: false})
-            .then((stream)=>{
+        sb.setManipulators([imgCopy, imgAdd]);
+
+        // sb.sbStartCapture({video: true, audio: false})
+        //     .then((stream)=>{
+        //         document.getElementById('myVideo').srcObject = stream;
+        //     });
+
+        navigator.mediaDevices.getUserMedia({video: true, audio: true}).then( stream => {
+            return sb.stampOnStream(stream);
+        }).then( stream => {
             document.getElementById('myVideo').srcObject = stream;
         })
+
     }
 </script>
-<head>
-</head>
-<body onload="init();">
-<h1>WebRtcShitBlt sample app</h1>
-<div>
-    <video id="myVideo" autoplay playsinline style="width: 640px;height: 480px;border-style: solid"></video>
-</div>
 </body>
 </html>

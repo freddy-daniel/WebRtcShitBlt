@@ -65,7 +65,7 @@ class TextAdd extends ImageManipulate
             canvasContext.fillStyle = this._options.color;
         }
         if (this._options.size) {
-            canvasContext.font.replace(/\d+px/, this._options.size);
+            canvasContext.font = canvasContext.font.replace(/\d+px/, this._options.size);
         }
         if (this._options.bold) {
             canvasContext.font = 'bold ' + canvasContext.font;
@@ -99,7 +99,18 @@ class WebRtcSB
                 return navigator.mediaDevices.getUserMedia(this._constraints);
             })
             .then((stream) => {
-                this._hiddenVideoElement.srcObject = stream;
+                return this.stampOnStream(stream);
+            })
+    }
+
+    stampOnStream(mediaStream)
+    {
+        return Promise.resolve()
+            .then(() => {
+                let canvasStream = new MediaStream();
+                let videoTrack = mediaStream.getVideoTracks()[0];
+                canvasStream.addTrack(videoTrack);
+                this._hiddenVideoElement.srcObject = canvasStream;
                 return Promise.resolve();
             })
             .then(() => {
@@ -107,6 +118,14 @@ class WebRtcSB
                 requestAnimationFrame(this._sendImageToCanvas.bind(this));
                 return this._hiddenCanvasElement.captureStream();
             })
+            .then((stampedStream) => {
+                let outputStream = new MediaStream();
+                let videoTrack = stampedStream.getVideoTracks()[0];
+                let audioTrack = mediaStream.getAudioTracks()[0];
+                outputStream.addTrack(videoTrack);
+                outputStream.addTrack(audioTrack);
+                return outputStream;
+            });
     }
 
     _createHiddenVideoElement()
@@ -114,6 +133,7 @@ class WebRtcSB
         this._hiddenVideoElement = document.createElement('video');
         this._hiddenVideoElement.setAttribute("autoplay", 'true');
         this._hiddenVideoElement.setAttribute("playsinline", true);
+        this._hiddenVideoElement.setAttribute('muted', 'true');
 
         // safari wont play the video if the element is not visible on screen, so instead of hidden, put a 1 pix
         if (this._isSafari()) {
