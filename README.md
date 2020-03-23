@@ -14,6 +14,7 @@ The returned MediaStream will have your selected image embeded in the video stre
 * logo
 * watermark
 * image extracted from a presentation
+* text watermark
 
 ### how does it work
 The code creates an hidden video element and an hidden canvas element<br/>
