@@ -25,12 +25,29 @@ Canvas MediaStream is returned to the calling app.
 ### Sample code
 ```javascript
         // the constanint object defaults to {video: true, audio: true} but to save u the echo...
-        var sb = new WebRtcSB({video:{width:640, height:480}, audio: false});
+        let sb = new WebRtcSB({video:{width:640, height:480}, audio: false});
         // create manipulation objects. they will be processed in the order you supply them.
         // in current live demo u will get 4 images
-        var imgCopy = new ImageCopy();
-        var imgAdd = new ImageAdd('sb.png', 10, 10, 50, 50);
-        sb.setManipulators([imgCopy, imgAdd]);
+        let imgCopy = new ImageCopy();
+        let imgAdd = new ImageAdd('sb.png', 10, 10, 50, 50);
+
+        let textAdd = new TextAdd('Freddy', 15, 35, {color: 'yellow', size: '30px'});
+        // possible construct params for TextAdd
+        //      textValue = '',
+        //      textPosX = 10,
+        //      textPosY = 10,
+        //      textOptions = {
+        //         fontType:  null,
+        //         color: 'yellow',
+        //         size: '20px',
+        //         bold: false,
+        //         italic: false,
+        //         outline: true, 
+        //         outlineWidth: 3,
+        //         outlineColor: 'green'
+        //     }
+
+        sb.setManipulators([imgCopy, imgAdd, textAdd]);
 
         sb.sbStartCapture()
             .then((stream)=>{

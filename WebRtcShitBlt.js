@@ -46,7 +46,10 @@ class TextAdd extends ImageManipulate
                     color: null,
                     size: null,
                     bold: false,
-                    italic: false
+                    italic: false,
+                    outline: false,
+                    outlineColor: 'black',
+                    outlineWidth: 5
                 })
     {
         super();
@@ -57,7 +60,6 @@ class TextAdd extends ImageManipulate
 
     manipulate(canvasContext, hiddenVideoElement)
     {
-        canvasContext.fillText(this._text, this._textPos.X, this._textPos.Y);
         if (this._options.fontType) {
             canvasContext.font.replace('sans-serif', this._options.fontType);
         }
@@ -73,6 +75,16 @@ class TextAdd extends ImageManipulate
         if (this._options.italic) {
             canvasContext.font = 'italic ' + canvasContext.font;
         }
+        if (this._options.outline) {
+            if (this._options.outlineColor) {
+                canvasContext.strokeStyle  = this._options.outlineColor;
+            }
+            if (this._options.outlineWidth) {
+                canvasContext.lineWidth = this._options.outlineWidth;
+            }
+            canvasContext.strokeText(this._text, this._textPos.X, this._textPos.Y);
+        }
+        canvasContext.fillText(this._text, this._textPos.X, this._textPos.Y);
     }
 }
 
