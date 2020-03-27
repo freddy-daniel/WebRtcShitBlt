@@ -1,50 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="html2canvas.js"></script>
     <script src="WebRtcShitBlt.js"></script>
 </head>
 <body onload="init();">
 <h1>WebRtcShitBlt sample app</h1>
 <div>
     <video id="myVideo" muted="true" autoplay playsinline style="width: 640px;height: 480px;border-style: solid"></video>
+    <button onclick="activateVideoMute()">Mute video</button>
+    <button onclick="htmlHandle.removeVideoMuted()">Mute video</button>
 </div>
 <script>
-
+    let htmlHandle;
     function init(){
         let sb = new WebRtcSB();
         let imgCopy = new ImageCopy();
-        let imgAdd = new TextAdd('Freddy Daniel', 15, 35, {color: 'yellow', size: '30px', outline: true, outlineWidth: 3});
-
-        // possible construct params
-        //      textValue = '',
-        //      textPosX = 10,
-        //      textPosY = 10,
-        //      textOptions = {
-        //         fontType:  null,
-        //         color: 'yellow',
-        //         size: '20px',
-        //         bold: false,
-        //         italic: false,
-        //         outline: true, 
-        //         outlineWidth: 3,
-        //         outlineColor: 'green'
-        //     }
-
-        // let imgAdd2 = new TextAdd('Daniel', 580, 10, {color: 'green', size: '35px'});
-
-        sb.setManipulators([imgCopy, imgAdd]);
-
-        // sb.sbStartCapture({video: true, audio: false})
-        //     .then((stream)=>{
-        //         document.getElementById('myVideo').srcObject = stream;
-        //     });
-
-        navigator.mediaDevices.getUserMedia({video: true, audio: true}).then( stream => {
+        let htmlAdd = new HTMLAdd();
+        htmlAdd.setLabel("Freddy", {
+            color: '#ffffff',
+            background: '#525252',
+            border: '1px solid #ffffff',
+            margin: '5px'
+        });
+        htmlHandle = htmlAdd;
+        sb.setManipulators([imgCopy, htmlAdd]);
+        navigator.mediaDevices.getUserMedia({video: true, audio: false}).then( stream => {
             return sb.stampOnStream(stream);
         }).then( stream => {
             document.getElementById('myVideo').srcObject = stream;
         })
+    }
 
+    function activateVideoMute() {
+        console.log(htmlHandle);
+        htmlHandle.addVideoMuted("https://lh3.googleusercontent.com/-oZZhR6oDrjw/AAAAAAAAAAI/AAAAAAAAAAA/AAKWJJP0I6BU28zqBmOIIVw8biN_fg7W8w.CMID/s83-c/photo.jpg");
     }
 </script>
 </body>

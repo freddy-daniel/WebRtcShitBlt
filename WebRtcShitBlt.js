@@ -88,6 +88,123 @@ class TextAdd extends ImageManipulate
     }
 }
 
+class HTMLAdd extends ImageManipulate
+{
+    constructor()
+    {
+        super();
+        this._capturedImage = new Image;
+
+        this.parentContainer = document.createElement('div');
+        this.parentContainer.id = 'parentContainer';
+        this.parentContainer.style.position = 'relative';
+        this.parentContainer.style.height = '0';
+        this.parentContainer.style.width = '0';
+        this.parentContainer.style.opacity = '0';
+        this.parentContainer.style.overflow = 'hidden';
+
+        let canvasHTML = document.createElement('div');
+        canvasHTML.style.position = 'absolute';
+
+        this.canvasHTML = canvasHTML;
+        this.canvasHTMLNodes = {};
+        this.parentContainer.append(canvasHTML);
+        document.body.append(this.parentContainer);
+        
+        this.buildCompleted = false;
+        this.buildRequired = true;
+    }
+
+    buildImage (hiddenVideoElement) {
+        console.log("building...");
+        this.isBuilding = true;
+        this.canvasHTML.style.height = hiddenVideoElement.videoHeight + 'px';
+        this.canvasHTML.style.width = hiddenVideoElement.videoWidth + 'px';
+        return html2canvas(this.canvasHTML, {backgroundColor:null}).then((canvas) => {
+            this._capturedImage.src = canvas.toDataURL();
+            this.isBuilding = false;
+        });
+    }
+
+    setHtmlObject (htmlObject) {
+        this.canvasHTML.append(htmlObject)
+        this.buildRequired = true; // for update
+    }
+
+    setLabel (label, cssStyle = {}) {
+        let defaultStyleObject = {
+            color: 'yellow',
+            background: 'black',
+            fontSize: '20px',
+            opacity: '0.5',
+            display: 'inline-block',
+            padding: parseInt(cssStyle.fontSize)/10 + "px"
+        };
+        cssStyle = Object.assign(defaultStyleObject, cssStyle);
+        let labelElement = document.createElement('div');
+        labelElement.innerText = label;
+        Object.keys(cssStyle).forEach(function(key) {
+            labelElement.style[key] = cssStyle[key];
+        });
+        this.canvasHTML.append(labelElement);
+        this.canvasHTML.labelElement = labelElement;
+        this.buildRequired = true; // for update
+    }
+
+    async addVideoMuted (centerImageURL) {
+        let background = this.createContanerHTML();
+        let image =  document.createElement('img');
+        image.src = await getImageData(centerImageURL);
+        image.style.top = 'calc(50% - 50px)';
+        image.style.left = 'calc(50% - 50px)';
+        image.style.position = 'relative';
+        image.style.width = '100px';
+        background.append(image);
+        this.canvasHTML.append(background);
+        this.canvasHTMLNodes.centerImage = image;
+        this.canvasHTMLNodes.background = background;
+        this.buildRequired = true; // for update
+    }
+
+    async removeVideoMuted () {
+        console.log('removeVideoMuted');
+        if (this.canvasHTMLNodes.background) {
+            this.canvasHTMLNodes.background.remove();
+            delete this.canvasHTMLNodes.background
+        }
+        if (this.canvasHTMLNodes.centerImage) {
+            delete this.canvasHTMLNodes.centerImage;
+        }
+        this.buildRequired = true; // for update in stream
+    }
+
+    createContanerHTML(cssStyle = {}) {
+        let defaultStyleObject = {
+            width: '100%',
+            height: '100%',
+            background: 'yellow',
+            position: 'absolute',
+            top: 0,
+            zIndex: -1
+        };
+        cssStyle = Object.assign(defaultStyleObject, cssStyle);
+
+        let wrapper = document.createElement('div');
+        Object.keys(cssStyle).forEach(function(key) {
+            wrapper.style[key] = cssStyle[key];
+        });
+        return wrapper;
+    }
+
+    async manipulate(canvasContext, hiddenVideoElement)
+    {
+        if (!this.isBuilding && this.buildRequired) {
+            await this.buildImage(hiddenVideoElement);
+            this.buildRequired = false;
+        }
+        canvasContext.drawImage(this._capturedImage, 0, 0, hiddenVideoElement.videoWidth, hiddenVideoElement.videoHeight);
+    }
+}
 
 class WebRtcSB
 {
@@ -133,9 +250,11 @@ class WebRtcSB
             .then((stampedStream) => {
                 let outputStream = new MediaStream();
                 let videoTrack = stampedStream.getVideoTracks()[0];
-                let audioTrack = mediaStream.getAudioTracks()[0];
                 outputStream.addTrack(videoTrack);
-                outputStream.addTrack(audioTrack);
+                if (mediaStream.getAudioTracks().length > 0) {
+                    let audioTrack = mediaStream.getAudioTracks()[0];
+                    outputStream.addTrack(audioTrack);
+                }
                 return outputStream;
             });
     }
@@ -195,4 +314,18 @@ class WebRtcSB
     }
 }
 
-
+function getImageData (url) {
+    return new Promise((resolve, reject) => {
+        let canvas = document.createElement("canvas");
+        image = new Image();
+        image.setAttribute('crossorigin', 'anonymous');
+        image.src = url;
+        image.onload = () => {
+            canvas.width = image.height;
+            canvas.height = image.height;
+            canvas.getContext('2d').drawImage(image, 0 , 0,  image.height, image.width);
+            resolve(canvas.toDataURL());
+        }
+        image.onerror = reject;
+    });
+}
