@@ -3,8 +3,14 @@
 [![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/webrtcshitblt)
 #### Live demo at https://asafrob.github.io/WebRtcShitBlt/
 #### An advanced version is here https://freddy-daniel.github.io/WebRtcShitBlt/
-image show a smaple use of a video captured by WebRTC with an embeded image (brown/yellow) on the top left corner<br/>
+image show a sample use of a video captured by WebRTC with an embeded image (brown/yellow) on the top left corner<br/>
 ![alt text](preview.png "sample screen of using the lib with default image")
+
+video captured by WebRTC with text embedded on the top left corner<br/>
+![alt text](preview2.png "sample screen of using the lib with text (TextAdd)")
+
+video captured by WebRTC with HTML embedded<br/>
+![alt text](preview3.png "sample screen of using the lib with HTML (HTMLAdd)")
 
 ### what does it do ?
 This library wraps a WebRTC source and returns a MediaStream that can be used as a normal MediaStream u get from navigator.mediaDevices.getUserMedia.<br/>
@@ -15,6 +21,7 @@ The returned MediaStream will have your selected image embeded in the video stre
 * watermark
 * image extracted from a presentation
 * text watermark
+* HTML watermark
 
 ### how does it work
 The code creates an hidden video element and an hidden canvas element<br/>
@@ -24,15 +31,19 @@ The logo image is also being drawn to the canvas.<br/>
 Canvas MediaStream is returned to the calling app.
 
 ### Sample code
+#### example1
 ```javascript
-        // the constanint object defaults to {video: true, audio: true} but to save u the echo...
+        // the constanint object defaults to {video: true, audio: false} but to save u the echo...
         let sb = new WebRtcSB({video:{width:640, height:480}, audio: false});
         // create manipulation objects. they will be processed in the order you supply them.
-        // in current live demo u will get 4 images
         let imgCopy = new ImageCopy();
+
+        // stamp an image
         let imgAdd = new ImageAdd('sb.png', 10, 10, 50, 50);
 
-        let textAdd = new TextAdd('Freddy', 15, 35, {color: 'yellow', size: '30px'});
+        // stamp a text
+        let textAdd = new TextAdd('Freddy Daniel', 15, 35, {color: 'yellow', size: '30px'});
+        
         // possible construct params for TextAdd
         //      textValue = '',
         //      textPosX = 10,
@@ -51,27 +62,33 @@ Canvas MediaStream is returned to the calling app.
         sb.setManipulators([imgCopy, imgAdd, textAdd]);
 
         sb.sbStartCapture()
-            .then((stream)=>{
+            .then((stream)=> {
+            document.getElementById('myVideo').srcObject = stream;
+        })
+```
+#### example 2
+```javascript
+        // the constanint object defaults to {video: true, audio: false} but to save u the echo...
+        let sb = new WebRtcSB({video:{width:640, height:480}, audio: false});
+        // create manipulation objects. they will be processed in the order you supply them.
+        let imgCopy = new ImageCopy();
+
+        // stamp a text
+        let htmlAdd = new HTMLAdd(); // dependency html2canvas.js required to use this manipulator
+        htmlAdd.setLabel('Freddy', {
+            /* css overrides */
+            padding: '5px',
+            borderRadius: '5px'
+        });
+
+        sb.setManipulators([imgCopy, htmlAdd]);
+
+        sb.sbStartCapture()
+            .then((stream)=> {
             document.getElementById('myVideo').srcObject = stream;
         })
 ```
 
 ### Note
 * this library is based on ES6
-
-### Tested on
-* chrome 63 (OS X)
-* FireFox 57 (OS X)
-* Safari 11.0.3 (OS X)
-
-### Roadmap
-* test & support other browsers/OSs
-* implement more plugins
-
-### Versions history
-####1.0.0
-initial release
-####1.0.1
-workaround for safari -  instead of an hidden video element use a 1px*1px video element
-####1.0.2
-support iOS 11
+* Require dependency html2canvas.js if using HTMLAdd manipulator
