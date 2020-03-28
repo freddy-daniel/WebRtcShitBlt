@@ -8,8 +8,9 @@
 <h1>WebRtcShitBlt sample app</h1>
 <div>
     <video id="myVideo" muted="true" autoplay playsinline style="width: 640px;height: 480px;border-style: solid"></video>
-    <button onclick="activateVideoMute()">Mute video</button>
-    <button onclick="htmlHandle.removeVideoMuted()">Mute video</button>
+    <br />
+    <button onclick="hideVideo()">Hideo video</button>
+    <button onclick="showVideo()">Show video</button>
 </div>
 <script>
     let htmlHandle;
@@ -32,9 +33,13 @@
         })
     }
 
-    function activateVideoMute() {
-        console.log(htmlHandle);
-        htmlHandle.addVideoMuted("https://lh3.googleusercontent.com/-oZZhR6oDrjw/AAAAAAAAAAI/AAAAAAAAAAA/AAKWJJP0I6BU28zqBmOIIVw8biN_fg7W8w.CMID/s83-c/photo.jpg");
+    function hideVideo() {
+        const ImageURL = "https://ui-avatars.com/api/?name=Freddy&size=200&length=1" // 1:1 square Image URL
+        htmlHandle.addVideoMuted(ImageURL, {/* Background styles */}, {/* Image styles*/ });
+    }
+
+    function showVideo() {
+        htmlHandle.removeVideoMuted();
     }
 </script>
 </body>

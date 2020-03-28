@@ -88,6 +88,9 @@ class TextAdd extends ImageManipulate
     }
 }
 
+/**
+ * For HTML manipulations over video stream
+ */
 class HTMLAdd extends ImageManipulate
 {
     constructor()
@@ -113,14 +116,17 @@ class HTMLAdd extends ImageManipulate
         
         this.buildCompleted = false;
         this.buildRequired = true;
+        if (typeof html2canvas == 'undefined') {
+            throw new ReferenceError('Dependency not found. required dependency html2canvas.js');
+        }
     }
 
     buildImage (hiddenVideoElement) {
-        console.log("building...");
+        console.debug("building snapshot...");
         this.isBuilding = true;
         this.canvasHTML.style.height = hiddenVideoElement.videoHeight + 'px';
         this.canvasHTML.style.width = hiddenVideoElement.videoWidth + 'px';
-        return html2canvas(this.canvasHTML, {backgroundColor:null}).then((canvas) => {
+        html2canvas(this.canvasHTML, {backgroundColor:null}).then((canvas) => {
             this._capturedImage.src = canvas.toDataURL();
             this.isBuilding = false;
         });
@@ -151,14 +157,41 @@ class HTMLAdd extends ImageManipulate
         this.buildRequired = true; // for update
     }
 
-    async addVideoMuted (centerImageURL) {
+    async addVideoMuted (centerImageURL, bgStyle={}, imageStyle={}) {
+        if (this.canvasHTMLNodes.background) {
+            return false;
+        }
+        // background overlay
+        let defaultBgStyleObject = {
+            width: '100%',
+            height: '100%',
+            background: 'grey',
+            position: 'absolute',
+            top: 0,
+            zIndex: -1
+        };
+        bgStyle = Object.assign(defaultBgStyleObject, bgStyle);
         let background = this.createContanerHTML();
+        Object.keys(bgStyle).forEach(function(key) {
+            background.style[key] = bgStyle[key];
+        });
+
+        // rounded image
         let image =  document.createElement('img');
         image.src = await getImageData(centerImageURL);
-        image.style.top = 'calc(50% - 50px)';
-        image.style.left = 'calc(50% - 50px)';
-        image.style.position = 'relative';
-        image.style.width = '100px';
+        let defaultImageStyleObject = {
+            position: 'relative',
+            width: '150px',
+            top: 'calc(50% - 75px)',
+            left: 'calc(50% - 75px)',
+            borderRadius: '50%',
+            border: '5px solid #8d8dbd'
+        };
+        imageStyle = Object.assign(defaultImageStyleObject, imageStyle);
+        Object.keys(imageStyle).forEach(function(key) {
+            image.style[key] = imageStyle[key];
+        });
+
         background.append(image);
         this.canvasHTML.append(background);
         this.canvasHTMLNodes.centerImage = image;
@@ -167,7 +200,6 @@ class HTMLAdd extends ImageManipulate
     }
 
     async removeVideoMuted () {
-        console.log('removeVideoMuted');
         if (this.canvasHTMLNodes.background) {
             this.canvasHTMLNodes.background.remove();
             delete this.canvasHTMLNodes.background
@@ -314,6 +346,12 @@ class WebRtcSB
     }
 }
 
+/**
+ * Convert image URL to image data URI
+ * 
+ * @param {string} url Image URL
+ * @returns {string} Data URI
+ */
 function getImageData (url) {
     return new Promise((resolve, reject) => {
         let canvas = document.createElement("canvas");
